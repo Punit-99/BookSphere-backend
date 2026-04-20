@@ -13,7 +13,7 @@ export const deleteMovieController = async ({ id }, user, redis) => {
 
   // 🔥 cache invalidation (now injected)
   try {
-    await redis.del("movies:all");
+    await redis.safeDel("movies:all");
   } catch (err) {
     console.log("Redis cache delete failed:", err.message);
   }

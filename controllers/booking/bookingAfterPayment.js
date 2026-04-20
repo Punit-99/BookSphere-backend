@@ -53,7 +53,7 @@ export const confirmBookingAfterPayment = async (req, res, redis) => {
 
     // ✅ clear booking cache (now from context redis)
     try {
-      await redis.del(`bookings:${req.user.id}`);
+      await redis.safeDel(`bookings:${req.user.id}`);
     } catch (err) {
       console.log("Redis cache clear failed:", err.message);
     }

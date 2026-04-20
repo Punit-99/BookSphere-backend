@@ -48,9 +48,9 @@ export const createShowController = async (args, user, redis) => {
 
     // 🔥 cache invalidation (injected redis)
     try {
-      await redis.del(`shows:${args.movie}`);
-      await redis.del(`shows:admin:${dbUser._id}`);
-      await redis.del(`shows:admin:${dbUser._id}:${args.movie}`);
+      await redis.safeDel(`shows:${args.movie}`);
+      await redis.safeDel(`shows:admin:${dbUser._id}`);
+      await redis.safeDel(`shows:admin:${dbUser._id}:${args.movie}`);
     } catch (err) {
       console.log("Redis cache clear failed:", err.message);
     }

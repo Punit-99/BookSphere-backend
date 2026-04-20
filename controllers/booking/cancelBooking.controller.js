@@ -20,7 +20,7 @@ export const cancelBookingController = async ({ bookingId }, user, redis) => {
 
   // 🔥 cache invalidation
   try {
-    await redis.del(`bookings:${user.id}`);
+    await redis.safeDel(`bookings:${user.id}`);
   } catch (err) {
     console.log("Redis cache delete failed:", err.message);
   }

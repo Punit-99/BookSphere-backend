@@ -8,7 +8,7 @@ export const getMoviesController = async (user, redis) => {
   const cacheKey = `movies:admin:${user.id}`;
 
   try {
-    const cached = await redis.get(cacheKey);
+    const cached = await redis.safeGet(cacheKey);
 
     if (cached) {
       return JSON.parse(cached);
@@ -30,7 +30,7 @@ export const getMoviesController = async (user, redis) => {
       owner: m.owner,
     }));
 
-    await redis.setEx(cacheKey, 600, JSON.stringify(formattedMovies));
+    await redis.safeSet(cacheKey, 600, JSON.stringify(formattedMovies));
 
     return formattedMovies;
   } catch (err) {

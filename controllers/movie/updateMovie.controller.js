@@ -15,8 +15,8 @@ export const updateMovieController = async ({ id, input }, user, redis) => {
 
   // 🔥 cache invalidation
   try {
-    await redis.del("movies:all");
-    await redis.del(`movies:admin:${dbUser._id}`);
+    await redis.safeDel("movies:all");
+    await redis.safeDel(`movies:admin:${dbUser._id}`);
   } catch (err) {
     console.log("Redis cache clear failed:", err.message);
   }
