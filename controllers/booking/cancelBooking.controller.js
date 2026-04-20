@@ -1,9 +1,7 @@
-// controllers/booking/cancelBooking.controller.js
 import Booking from "../../models/booking.model.js";
 import Show from "../../models/show.model.js";
-import redisClient from "../../config/redis.js";
 
-export const cancelBookingController = async ({ bookingId }, user) => {
+export const cancelBookingController = async ({ bookingId }, user, redis) => {
   if (!user) throw new Error("Not authenticated");
 
   const booking = await Booking.findById(bookingId);
@@ -20,8 +18,12 @@ export const cancelBookingController = async ({ bookingId }, user) => {
     $inc: { availableSeats: booking.seatsBooked },
   });
 
-  // 🔥 Invalidate caches
-  await redisClient.del(`bookings:${user.id}`);
+  // 🔥 cache invalidation
+  try {
+    await redis.del(`bookings:${user.id}`);
+  } catch (err) {
+    console.log("Redis cache delete failed:", err.message);
+  }
 
   return booking;
 };

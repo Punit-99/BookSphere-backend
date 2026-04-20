@@ -2,11 +2,10 @@ import Show from "../../models/show.model.js";
 import Movie from "../../models/movie.model.js";
 import Theatre from "../../models/theatre.model.js";
 import { requireRole } from "../../middlewares/role.middleware.js";
-import redisClient from "../../config/redis.js";
 import { ROLES } from "../../utils/constant.js";
 import User from "../../models/user.model.js";
 
-export const createShowController = async (args, user) => {
+export const createShowController = async (args, user, redis) => {
   const dbUser = await User.findById(user.id);
 
   if (!dbUser) {
@@ -47,9 +46,14 @@ export const createShowController = async (args, user) => {
       availableSeats: args.totalSeats,
     });
 
-    await redisClient.del(`shows:${args.movie}`);
-    await redisClient.del(`shows:admin:${dbUser._id}`);
-    await redisClient.del(`shows:admin:${dbUser._id}:${args.movie}`);
+    // 🔥 cache invalidation (injected redis)
+    try {
+      await redis.del(`shows:${args.movie}`);
+      await redis.del(`shows:admin:${dbUser._id}`);
+      await redis.del(`shows:admin:${dbUser._id}:${args.movie}`);
+    } catch (err) {
+      console.log("Redis cache clear failed:", err.message);
+    }
 
     return show;
   } catch (err) {

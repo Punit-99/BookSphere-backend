@@ -1,9 +1,8 @@
 import { stripe } from "../../config/stripe.js";
 import Booking from "../../models/booking.model.js";
 import Show from "../../models/show.model.js";
-import redisClient from "../../config/redis.js";
 
-export const confirmBookingAfterPayment = async (req, res) => {
+export const confirmBookingAfterPayment = async (req, res, redis) => {
   try {
     const { sessionId } = req.body;
 
@@ -52,8 +51,12 @@ export const confirmBookingAfterPayment = async (req, res) => {
       },
     });
 
-    // clear booking cache
-    await redisClient.del(`bookings:${req.user.id}`);
+    // ✅ clear booking cache (now from context redis)
+    try {
+      await redis.del(`bookings:${req.user.id}`);
+    } catch (err) {
+      console.log("Redis cache clear failed:", err.message);
+    }
 
     return res.json({
       success: true,

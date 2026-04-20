@@ -1,7 +1,6 @@
 import Show from "../../models/show.model.js";
-import redisClient from "../../config/redis.js";
 
-export const getShowsController = async ({ movieId }, user) => {
+export const getShowsController = async ({ movieId }, user, redis) => {
   try {
     const shows = await Show.find(movieId ? { movie: movieId } : {})
       .populate("movie")

@@ -1,7 +1,6 @@
 import Movie from "../../models/movie.model.js";
-import redisClient from "../../config/redis.js";
 
-export const getMoviesController = async (user) => {
+export const getMoviesController = async (user, redis) => {
   if (!user) {
     throw new Error("Unauthorized");
   }
@@ -9,7 +8,7 @@ export const getMoviesController = async (user) => {
   const cacheKey = `movies:admin:${user.id}`;
 
   try {
-    const cached = await redisClient.get(cacheKey);
+    const cached = await redis.get(cacheKey);
 
     if (cached) {
       return JSON.parse(cached);
@@ -31,7 +30,7 @@ export const getMoviesController = async (user) => {
       owner: m.owner,
     }));
 
-    await redisClient.setEx(cacheKey, 600, JSON.stringify(formattedMovies));
+    await redis.setEx(cacheKey, 600, JSON.stringify(formattedMovies));
 
     return formattedMovies;
   } catch (err) {

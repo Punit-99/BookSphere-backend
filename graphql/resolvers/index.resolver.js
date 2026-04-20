@@ -59,9 +59,9 @@ const resolvers = {
 
     bookingPage: (_, { movieId }) => getBookingPageController(movieId),
 
-    adminMovies: (_, __, { user }) => {
+    adminMovies: (_, __, { user, redis }) => {
       requireAuth(user);
-      return getMoviesController(user);
+      return getMoviesController(user, redis);
     },
 
     adminTheatres: (_, __, { user }) => {
@@ -69,9 +69,9 @@ const resolvers = {
       return getTheatresController(user);
     },
 
-    adminShows: (_, args, { user }) => {
+    adminShows: (_, args, { user, redis }) => {
       requireAuth(user);
-      return getShowsController(args, user);
+      return getShowsController(args, user, redis);
     },
 
     myBookings: (_, __, { user, redis }) => {
@@ -124,19 +124,19 @@ const resolvers = {
     refreshToken: (_, __, ctx) => refreshTokenController(_, __, ctx),
     logout: (_, __, ctx) => logoutController(_, __, ctx),
 
-    createMovie: (_, args, { user }) => {
+    createMovie: (_, args, { user, redis }) => {
       requireAuth(user);
-      return createMovieController(args, user);
+      return createMovieController(args, user, redis);
     },
 
-    updateMovie: (_, args, { user }) => {
+    updateMovie: (_, args, { user, redis }) => {
       requireAuth(user);
-      return updateMovieController(args, user);
+      return updateMovieController(args, user, redis);
     },
 
-    deleteMovie: (_, args, { user }) => {
+    deleteMovie: (_, args, { user, redis }) => {
       requireAuth(user);
-      return deleteMovieController(args, user);
+      return deleteMovieController(args, user, redis);
     },
 
     createTheatre: (_, args, { user }) => {
@@ -154,9 +154,9 @@ const resolvers = {
       return deleteTheatreController(args, user);
     },
 
-    createShow: (_, args, { user }) => {
+    createShow: (_, args, { user, redis }) => {
       requireAuth(user);
-      return createShowController(args, user);
+      return createShowController(args, user, redis);
     },
 
     updateShow: (_, args, { user }) => {
@@ -169,9 +169,9 @@ const resolvers = {
       return deleteShowController(args, user);
     },
 
-    cancelBooking: (_, args, { user }) => {
+    cancelBooking: (_, args, { user, redis }) => {
       requireAuth(user);
-      return cancelBookingController(args, user);
+      return cancelBookingController(args, user, redis);
     },
 
     toggleAdminApproval: async (_, args, { user }) => {

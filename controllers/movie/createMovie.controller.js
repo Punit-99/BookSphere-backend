@@ -1,10 +1,9 @@
 import Movie from "../../models/movie.model.js";
 import { requireRole } from "../../middlewares/role.middleware.js";
-import redisClient from "../../config/redis.js";
 import { ROLES } from "../../utils/constant.js";
 import User from "../../models/user.model.js";
 
-export const createMovieController = async (args, user) => {
+export const createMovieController = async (args, user, redis) => {
   const dbUser = await User.findById(user.id);
 
   if (!dbUser) {
@@ -20,13 +19,9 @@ export const createMovieController = async (args, user) => {
   const movieData = {
     ...args,
     owner: dbUser._id,
-
     duration: Number(args.duration),
-
     language: Array.isArray(args.language) ? args.language : [args.language],
-
     genre: Array.isArray(args.genre) ? args.genre : [args.genre],
-
     poster: Array.isArray(args.poster)
       ? args.poster
       : args.poster
@@ -36,9 +31,13 @@ export const createMovieController = async (args, user) => {
 
   const movie = await Movie.create(movieData);
 
-  // clear both admin + public caches
-  await redisClient.del(`movies:admin:${dbUser._id}`);
-  await redisClient.del("movies:all");
+  // 🔥 cache invalidation (now injected)
+  try {
+    await redis.del(`movies:admin:${dbUser._id}`);
+    await redis.del("movies:all");
+  } catch (err) {
+    console.log("Redis cache clear failed:", err.message);
+  }
 
   return movie;
 };

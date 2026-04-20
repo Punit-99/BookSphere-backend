@@ -1,11 +1,9 @@
 import Movie from "../../models/movie.model.js";
-import redisClient from "../../config/redis.js";
 import { ROLES } from "../../utils/constant.js";
 import User from "../../models/user.model.js";
 import { requireRole } from "../../middlewares/role.middleware.js";
 
-// ================= UPDATE MOVIE =================
-export const updateMovieController = async ({ id, input }, user) => {
+export const updateMovieController = async ({ id, input }, user, redis) => {
   const dbUser = await User.findById(user.id);
   if (!dbUser) throw new Error("User not found");
 
@@ -15,7 +13,13 @@ export const updateMovieController = async ({ id, input }, user) => {
     new: true,
   });
 
-  await redisClient.del("movies:all");
+  // 🔥 cache invalidation
+  try {
+    await redis.del("movies:all");
+    await redis.del(`movies:admin:${dbUser._id}`);
+  } catch (err) {
+    console.log("Redis cache clear failed:", err.message);
+  }
 
   return movie;
 };
