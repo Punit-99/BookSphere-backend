@@ -74,9 +74,9 @@ const resolvers = {
       return getShowsController(args, user);
     },
 
-    myBookings: (_, __, { user }) => {
+    myBookings: (_, __, { user, redis }) => {
       requireAuth(user);
-      return getMyBookingsController(user);
+      return getMyBookingsController(user, redis);
     },
 
     me: async (_, __, { user }) => {

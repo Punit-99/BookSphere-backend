@@ -1,17 +1,18 @@
 import Booking from "../../models/booking.model.js";
-import redisClient from "../../config/redis.js";
 
-export const getMyBookingsController = async (user) => {
-  if (!user) {
-    throw new Error("Not authenticated");
-  }
+export const getMyBookingsController = async (user, redis) => {
+  if (!user) throw new Error("Not authenticated");
 
   const cacheKey = `bookings:${user.id}`;
 
-  const cached = await redisClient.get(cacheKey);
+  try {
+    const cached = await redis.get(cacheKey);
 
-  if (cached) {
-    return JSON.parse(cached);
+    if (cached) {
+      return JSON.parse(cached);
+    }
+  } catch (err) {
+    console.log("Redis read error:", err.message);
   }
 
   const bookings = await Booking.find({ user: user.id })
@@ -21,7 +22,11 @@ export const getMyBookingsController = async (user) => {
       populate: [{ path: "movie" }, { path: "theatre" }],
     });
 
-  await redisClient.setEx(cacheKey, 300, JSON.stringify(bookings));
+  try {
+    await redis.setEx(cacheKey, 300, JSON.stringify(bookings));
+  } catch (err) {
+    console.log("Redis write error:", err.message);
+  }
 
   return bookings;
 };

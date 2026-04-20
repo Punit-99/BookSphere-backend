@@ -1,25 +1,24 @@
 import { createClient } from "redis";
 
-const redisClient = createClient({
-  url: process.env.REDIS_URL,
-});
+const globalForRedis = global;
 
-redisClient.on("error", (err) => {
-  console.error("Redis Error:", err);
-});
+const redisClient =
+  globalForRedis.redisClient ||
+  createClient({
+    url: process.env.REDIS_URL,
+  });
 
-export const connectRedis = async () => {
-  if (!process.env.REDIS_URL) return;
+if (!globalForRedis.redisClient) {
+  globalForRedis.redisClient = redisClient;
 
-  try {
-    if (!redisClient.isOpen) {
-      await redisClient.connect();
-      console.log("Redis connected");
-    }
-  } catch (e) {
-    console.log("Redis skipped:", e.message);
-  }
-};
+  redisClient.on("error", (err) => {
+    console.error("Redis Error:", err);
+  });
 
-// ✅ add this
+  // 🔥 connect ONCE globally (important for Vercel)
+  redisClient.connect().catch((err) => {
+    console.error("Redis connection failed:", err.message);
+  });
+}
+
 export default redisClient;
