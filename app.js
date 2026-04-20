@@ -26,18 +26,27 @@ app.use(cookieParser());
 app.use("/api/upload", uploadRoutes);
 app.use("/api/payment", paymentRoutes);
 
-// initialize once
 let isInitialized = false;
 
 const initializeApp = async () => {
   if (isInitialized) return;
 
-  await connectDB();
-  await connectRedis();
-  await createApolloServer(app);
+  try {
+    await connectDB();
 
-  isInitialized = true;
-  console.log("App initialized");
+    // only connect redis if REDIS_URL exists
+    if (process.env.REDIS_URL) {
+      await connectRedis();
+    }
+
+    await createApolloServer(app);
+
+    isInitialized = true;
+    console.log("App initialized successfully");
+  } catch (error) {
+    console.error("App initialization failed:", error);
+    throw error;
+  }
 };
 
 await initializeApp();
