@@ -1,4 +1,3 @@
-// src/app.js
 import express from "express";
 import cors from "cors";
 import cookieParser from "cookie-parser";
@@ -11,7 +10,6 @@ import { connectRedis } from "./config/redis.js";
 
 const app = express();
 
-// middleware
 app.use(
   cors({
     origin: process.env.FRONTEND_URL,
@@ -22,33 +20,50 @@ app.use(
 app.use(express.json());
 app.use(cookieParser());
 
-// routes
 app.use("/api/upload", uploadRoutes);
 app.use("/api/payment", paymentRoutes);
 
-let isInitialized = false;
+let initialized = false;
+let initializingPromise = null;
 
-const initializeApp = async () => {
-  if (isInitialized) return;
+async function initializeApp() {
+  if (initialized) return;
+  if (initializingPromise) return initializingPromise;
 
-  try {
+  initializingPromise = (async () => {
+    console.log("Connecting DB...");
     await connectDB();
+    console.log("DB connected");
 
-    // only connect redis if REDIS_URL exists
     if (process.env.REDIS_URL) {
+      console.log("Connecting Redis...");
       await connectRedis();
+      console.log("Redis connected");
     }
 
+    console.log("Starting Apollo...");
     await createApolloServer(app);
+    console.log("Apollo started");
 
-    isInitialized = true;
+    initialized = true;
     console.log("App initialized successfully");
-  } catch (error) {
-    console.error("App initialization failed:", error);
-    throw error;
-  }
-};
+  })();
 
-await initializeApp();
+  return initializingPromise;
+}
+
+app.use(async (req, res, next) => {
+  try {
+    await initializeApp();
+    next();
+  } catch (error) {
+    console.error("Initialization failed:", error);
+    res.status(500).json({
+      success: false,
+      message: "Server initialization failed",
+      error: error.message,
+    });
+  }
+});
 
 export default app;

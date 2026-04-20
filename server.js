@@ -1,4 +1,4 @@
-// server.js (only for local development)
+// server.js
 import dotenv from "dotenv";
 dotenv.config();
 
