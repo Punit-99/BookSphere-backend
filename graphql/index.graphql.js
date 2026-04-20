@@ -50,7 +50,7 @@ const createApolloServer = async (app) => {
             res.cookie("accessToken", newAccessToken, {
               httpOnly: true,
               secure: process.env.COOKIE_SECURE === "true",
-              sameSite: "lax",
+              sameSite: process.env.COOKIE_SAME_SITE || "lax",
             });
 
             return { user: decoded, req, res };

@@ -14,16 +14,16 @@ export const loginUser = async ({ email, password }, { res }) => {
   res.cookie("accessToken", accessToken, {
     httpOnly: true,
     secure: process.env.COOKIE_SECURE === "true",
-    sameSite: "lax",
-    maxAge: 15 * 60 * 1000, // 15 min
+    sameSite: process.env.COOKIE_SAME_SITE || "lax",
+    maxAge: process.env.ACCESS_TOKEN_EXPIRE || 15 * 60 * 1000,
   });
 
   res.cookie("refreshToken", refreshToken, {
     httpOnly: true,
     secure: process.env.COOKIE_SECURE === "true",
-    sameSite: "lax",
-    path: "/", // 🔥 REQUIRED
-    maxAge: 7 * 24 * 60 * 60 * 1000,
+    sameSite: process.env.COOKIE_SAME_SITE || "lax",
+    path: process.env.REFRESH_TOKEN_PATH  || "/",
+    maxAge: process.env.REFRESH_TOKEN_EXPIRE || 7 * 24 * 60 * 60 * 1000,
   });
 
   return { user };

@@ -19,13 +19,13 @@ export const registerUser = async ({ name, email, password }, { res }) => {
   res.cookie("accessToken", accessToken, {
     httpOnly: true,
     secure: process.env.COOKIE_SECURE === "true",
-    sameSite: "lax",
+    sameSite: process.env.COOKIE_SAME_SITE || "lax",
   });
 
   res.cookie("refreshToken", refreshToken, {
     httpOnly: true,
     secure: process.env.COOKIE_SECURE === "true",
-    sameSite: "lax",
+     sameSite: process.env.COOKIE_SAME_SITE || "lax",
   });
 
   return { user };
