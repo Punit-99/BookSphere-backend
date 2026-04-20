@@ -1,25 +1,27 @@
 import { createClient } from "redis";
 
-const redisClient = createClient({
-  url: process.env.REDIS_URL,
-});
+let redisClient;
 
-redisClient.on("error", (err) => {
-  console.error("Redis Error:", err);
-});
+export const getRedis = () => {
+  if (!redisClient) {
+    redisClient = createClient({
+      url: process.env.REDIS_URL,
+    });
 
-export const connectRedis = async () => {
-  if (!process.env.REDIS_URL) return;
-
-  try {
-    if (!redisClient.isOpen) {
-      await redisClient.connect();
-      console.log("Redis connected");
-    }
-  } catch (e) {
-    console.log("Redis skipped:", e.message);
+    redisClient.on("error", (err) => {
+      console.error("Redis Error:", err);
+    });
   }
+
+  return redisClient;
 };
 
-// ✅ add this
-export default redisClient;
+export const connectRedis = async () => {
+  const client = getRedis();
+
+  if (!client.isOpen) {
+    await client.connect();
+  }
+
+  return client;
+};
