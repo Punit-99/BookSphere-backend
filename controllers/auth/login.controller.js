@@ -13,16 +13,16 @@ export const loginUser = async ({ email, password }, { res }) => {
 
   res.cookie("accessToken", accessToken, {
     httpOnly: true,
-    secure: process.env.COOKIE_SECURE === "true",
-    sameSite: process.env.COOKIE_SAME_SITE || "lax",
+    secure: true,
+    sameSite: "none",
     maxAge: Number(process.env.ACCESS_TOKEN_EXPIRE) || 15 * 60 * 1000,
   });
 
   res.cookie("refreshToken", refreshToken, {
     httpOnly: true,
-    secure: process.env.COOKIE_SECURE === "true",
-    sameSite: process.env.COOKIE_SAME_SITE || "lax",
-    path: process.env.REFRESH_TOKEN_PATH  || "/",
+    secure: true,
+    sameSite: "none",
+    path: "/",
     maxAge: Number(process.env.REFRESH_TOKEN_EXPIRE) || 7 * 24 * 60 * 60 * 1000,
   });
 

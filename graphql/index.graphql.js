@@ -4,6 +4,7 @@ import redisClient from "../config/redis.js";
 import typeDefs from "./typeDefs/index.typeDef.js";
 import resolvers from "./resolvers/index.resolver.js";
 import jwt from "jsonwebtoken";
+import User from "../models/user.model.js";
 
 const createApolloServer = async (app) => {
   const server = new ApolloServer({
@@ -24,40 +25,55 @@ const createApolloServer = async (app) => {
 
         try {
           if (accessToken) {
-            user = jwt.verify(accessToken, process.env.JWT_ACCESS_SECRET);
+            const decoded = jwt.verify(
+              accessToken,
+              process.env.JWT_ACCESS_SECRET,
+            );
+
+            // 🔥 ALWAYS FETCH USER FROM DB
+            user = await User.findById(decoded.id).select("id role email name");
           } else if (refreshToken) {
             const decoded = jwt.verify(
               refreshToken,
               process.env.JWT_REFRESH_SECRET,
             );
 
+            const dbUser = await User.findById(decoded.id);
+
+            if (!dbUser) throw new Error("User not found");
+
             const newAccessToken = jwt.sign(
               {
-                id: decoded.id,
-                role: decoded.role,
-                email: decoded.email,
+                id: dbUser._id,
+                role: dbUser.role,
+                email: dbUser.email,
               },
               process.env.JWT_ACCESS_SECRET,
-              { expiresIn: Number(process.env.ACCESS_TOKEN_EXPIRE) },
+              { expiresIn: process.env.ACCESS_TOKEN_EXPIRE },
             );
 
             res.cookie("accessToken", newAccessToken, {
               httpOnly: true,
               secure: process.env.COOKIE_SECURE === "true",
-              sameSite: process.env.COOKIE_SAME_SITE || "lax",
+              sameSite: "none",
             });
 
-            user = decoded;
+            user = {
+              id: dbUser._id,
+              role: dbUser.role,
+              email: dbUser.email,
+            };
           }
         } catch (err) {
           console.log("AUTH ERROR:", err.message);
+          user = null;
         }
 
         return {
           user,
           req,
           res,
-          redis: redisClient, // 🔥 ONLY PASS IT HERE
+          redis: redisClient,
         };
       },
     }),
