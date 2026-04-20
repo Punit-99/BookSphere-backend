@@ -13,7 +13,7 @@ export const refreshTokenController = async (_, __, { req, res }) => {
     const accessToken = jwt.sign(
       { id: decoded.id },
       process.env.JWT_ACCESS_SECRET,
-      { expiresIn: process.env.ACCESS_TOKEN_EXPIRE },
+      { expiresIn: Number(process.env.ACCESS_TOKEN_EXPIRE) },
     );
 
     res.cookie("accessToken", accessToken, {

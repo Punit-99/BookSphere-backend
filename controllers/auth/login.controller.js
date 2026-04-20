@@ -15,7 +15,7 @@ export const loginUser = async ({ email, password }, { res }) => {
     httpOnly: true,
     secure: process.env.COOKIE_SECURE === "true",
     sameSite: process.env.COOKIE_SAME_SITE || "lax",
-    maxAge: process.env.ACCESS_TOKEN_EXPIRE || 15 * 60 * 1000,
+    maxAge: Number(process.env.ACCESS_TOKEN_EXPIRE) || 15 * 60 * 1000,
   });
 
   res.cookie("refreshToken", refreshToken, {
@@ -23,7 +23,7 @@ export const loginUser = async ({ email, password }, { res }) => {
     secure: process.env.COOKIE_SECURE === "true",
     sameSite: process.env.COOKIE_SAME_SITE || "lax",
     path: process.env.REFRESH_TOKEN_PATH  || "/",
-    maxAge: process.env.REFRESH_TOKEN_EXPIRE || 7 * 24 * 60 * 60 * 1000,
+    maxAge: Number(process.env.REFRESH_TOKEN_EXPIRE) || 7 * 24 * 60 * 60 * 1000,
   });
 
   return { user };

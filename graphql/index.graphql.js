@@ -44,7 +44,7 @@ const createApolloServer = async (app) => {
                 email: decoded.email,
               },
               process.env.JWT_ACCESS_SECRET,
-              { expiresIn: process.env.ACCESS_TOKEN_EXPIRE },
+              { expiresIn: Number(process.env.ACCESS_TOKEN_EXPIRE) },
             );
 
             res.cookie("accessToken", newAccessToken, {
