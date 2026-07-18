@@ -23,7 +23,7 @@ export const getMyBookingsController = async (user, redis) => {
     });
 
   try {
-    await redis.safeSet(cacheKey, 300, JSON.stringify(bookings));
+    await redis.safeSet(cacheKey, JSON.stringify(bookings), 300);
   } catch (err) {
     console.log("Redis write error:", err.message);
   }

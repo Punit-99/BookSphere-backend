@@ -9,7 +9,14 @@ export const updateMovieController = async ({ id, input }, user, redis) => {
 
   requireRole(dbUser, [ROLES.ADMIN]);
 
-  const movie = await Movie.findByIdAndUpdate(id, input, {
+  const movie = await Movie.findById(id);
+  if (!movie) throw new Error("Movie not found");
+
+  if (movie.owner.toString() !== dbUser.id) {
+    throw new Error("Not allowed to update this movie");
+  }
+
+  const updatedMovie = await Movie.findByIdAndUpdate(id, input, {
     new: true,
   });
 
@@ -21,5 +28,5 @@ export const updateMovieController = async ({ id, input }, user, redis) => {
     console.log("Redis cache clear failed:", err.message);
   }
 
-  return movie;
+  return updatedMovie;
 };

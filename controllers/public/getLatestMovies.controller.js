@@ -17,7 +17,7 @@ export const getLatestMoviesController = async () => {
       releaseDate: m.releaseDate,
       poster: m.poster,
     }));
-  } catch (err) {
+  } catch {
     throw new Error("Failed to fetch latest movies");
   }
 };

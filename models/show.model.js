@@ -1,54 +1,77 @@
 import mongoose from "mongoose";
 
+const seatSchema = new mongoose.Schema({
+  number: {
+    type: String,
+    required: true,
+  },
+  tier: {
+    type: String,
+    enum: ["Standard", "Premium", "VIP"],
+    default: "Standard",
+  },
+  status: {
+    type: String,
+    enum: ["Available", "Locked", "Sold"],
+    default: "Available",
+  },
+  lockedBy: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "User",
+    default: null,
+  },
+  lockExpiresAt: {
+    type: Date,
+    default: null,
+  },
+});
+
 const showSchema = new mongoose.Schema(
   {
-    movie: {
+    event: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: "Movie",
+      ref: "Event",
       required: true,
       index: true,
     },
-
-    theatre: {
+    venue: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: "Theatre",
+      ref: "Venue",
       required: true,
       index: true,
     },
-
     showTime: {
       type: Date,
       required: true,
       index: true,
     },
-
     totalSeats: {
       type: Number,
       required: true,
       min: 1,
     },
-
     availableSeats: {
       type: Number,
       required: true,
       min: 0,
     },
-
     price: {
       type: Number,
       required: true,
       min: 0,
     },
+    seats: {
+      type: [seatSchema],
+      default: [],
+    },
   },
   { timestamps: true }
 );
 
-
-
-// ✅ Prevent duplicate shows
+// Prevent duplicate shows
 showSchema.index(
-  { movie: 1, theatre: 1, showTime: 1 },
+  { event: 1, venue: 1, showTime: 1 },
   { unique: true }
 );
 
-export default mongoose.model("Show", showSchema);
+export default mongoose.models.Show || mongoose.model("Show", showSchema);

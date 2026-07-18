@@ -159,14 +159,18 @@ const resolvers = {
       return createShowController(args, user, redis);
     },
 
-    updateShow: (_, args, { user }) => {
+    updateShow: (_, args, { user, redis }) => {
       requireAuth(user);
-      return updateShowController(args, user);
+      return updateShowController(args, user, redis);
     },
 
-    deleteShow: (_, args, { user }) => {
+    deleteShow: (_, args, { user, redis }) => {
       requireAuth(user);
-      return deleteShowController(args, user);
+      return deleteShowController(args, user, redis);
+    },
+
+    createBooking: () => {
+      throw new Error("Direct booking creation is not allowed. Please use the Stripe payment gateway.");
     },
 
     cancelBooking: (_, args, { user, redis }) => {

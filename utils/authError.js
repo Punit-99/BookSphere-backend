@@ -2,10 +2,12 @@
 
 import { GraphQLError } from "graphql";
 
-export const AuthenticationError = (message = "Not authenticated") => {
-  throw new GraphQLError(message, {
-    extensions: {
-      code: "UNAUTHENTICATED",
-    },
-  });
-};
+export class AuthenticationError extends GraphQLError {
+  constructor(message = "Not authenticated") {
+    super(message, {
+      extensions: {
+        code: "UNAUTHENTICATED",
+      },
+    });
+  }
+}

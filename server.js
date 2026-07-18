@@ -1,7 +1,10 @@
+import dotenv from "dotenv";
+dotenv.config();
+
 import { initApp } from "./api/init.js";
 import app from "./app.js";
 
-const PORT = 4000;
+const PORT = process.env.PORT || 4000;
 
 const start = async () => {
   await initApp(app);

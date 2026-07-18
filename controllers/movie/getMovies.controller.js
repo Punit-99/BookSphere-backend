@@ -30,7 +30,7 @@ export const getMoviesController = async (user, redis) => {
       owner: m.owner,
     }));
 
-    await redis.safeSet(cacheKey, 600, JSON.stringify(formattedMovies));
+    await redis.safeSet(cacheKey, JSON.stringify(formattedMovies), 600);
 
     return formattedMovies;
   } catch (err) {

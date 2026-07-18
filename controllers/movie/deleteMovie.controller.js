@@ -9,6 +9,13 @@ export const deleteMovieController = async ({ id }, user, redis) => {
 
   requireRole(dbUser, [ROLES.ADMIN]);
 
+  const movie = await Movie.findById(id);
+  if (!movie) throw new Error("Movie not found");
+
+  if (movie.owner.toString() !== dbUser.id) {
+    throw new Error("Not allowed to delete this movie");
+  }
+
   await Movie.findByIdAndDelete(id);
 
   // 🔥 cache invalidation (now injected)

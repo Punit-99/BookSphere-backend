@@ -1,6 +1,6 @@
 import Show from "../../models/show.model.js";
 
-export const getShowsController = async ({ movieId }, user, redis) => {
+export const getShowsController = async ({ movieId }, user) => {
   try {
     const shows = await Show.find(movieId ? { movie: movieId } : {})
       .populate("movie")
