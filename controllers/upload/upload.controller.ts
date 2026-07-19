@@ -1,5 +1,5 @@
 import { Request, Response } from "express";
-import { uploadToCloudinary } from "../../utils/uploadToCloudinary.js";
+import { uploadToCloudinary } from "../../utils/uploadToCloudinary";
 
 export const uploadImagesController = async (req: Request, res: Response): Promise<any> => {
   try {

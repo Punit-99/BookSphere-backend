@@ -1,11 +1,11 @@
-import User from "../../models/user.model.js";
-import Venue from "../../models/venue.model.js";
-import Event from "../../models/event.model.js";
-import Show from "../../models/show.model.js";
-import Booking from "../../models/booking.model.js";
+import User from "../../models/user.model";
+import Venue from "../../models/venue.model";
+import Event from "../../models/event.model";
+import Show from "../../models/show.model";
+import Booking from "../../models/booking.model";
 import jwt from "jsonwebtoken";
 import bcrypt from "bcryptjs";
-import { GraphQLContext } from "../index.graphql.js";
+import { GraphQLContext } from "../index.graphql";
 
 const resolvers = {
   Query: {

@@ -1,11 +1,11 @@
 import { Application, Request, Response } from "express";
 import { ApolloServer } from "@apollo/server";
 import { expressMiddleware } from "@as-integrations/express5";
-import redisClient from "../config/redis.js";
-import typeDefs from "./typeDefs/index.typeDef.js";
-import resolvers from "./resolvers/index.resolver.js";
+import redisClient from "../config/redis";
+import typeDefs from "./typeDefs/index.typeDef";
+import resolvers from "./resolvers/index.resolver";
 import jwt from "jsonwebtoken";
-import User from "../models/user.model.js";
+import User from "../models/user.model";
 
 export interface GraphQLContext {
   user: any;

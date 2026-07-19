@@ -1,6 +1,6 @@
 import { Request, Response, NextFunction } from "express";
-import { authMiddleware } from "../middlewares/auth.middleware.js";
-import { AuthenticationError } from "./authError.js";
+import { authMiddleware } from "../middlewares/auth.middleware";
+import { AuthenticationError } from "./authError";
 
 export const requireAuth = (user: any): void => {
   if (!user) {

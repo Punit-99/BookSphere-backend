@@ -1,5 +1,5 @@
 import { Request, Response } from "express";
-import cloudinary from "../../utils/cloudinary.js";
+import cloudinary from "../../utils/cloudinary";
 
 export const deleteImageController = async (req: Request, res: Response): Promise<any> => {
   try {

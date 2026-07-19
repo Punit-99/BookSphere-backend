@@ -1,6 +1,6 @@
 import { Application } from "express";
-import { connectDB } from "../config/db.js";
-import createApolloServer from "../graphql/index.graphql.js";
+import { connectDB } from "../config/db";
+import createApolloServer from "../graphql/index.graphql";
 
 let initialized = false;
 

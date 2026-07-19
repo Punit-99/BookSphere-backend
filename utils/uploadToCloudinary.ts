@@ -1,4 +1,4 @@
-import cloudinary from "./cloudinary.js";
+import cloudinary from "./cloudinary";
 import streamifier from "streamifier";
 
 export const uploadToCloudinary = (fileBuffer: Buffer): Promise<any> => {

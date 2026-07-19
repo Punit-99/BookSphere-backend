@@ -9,7 +9,7 @@
     "build": "tsc",
     "start": "node dist/server.js",
     "lint": "eslint .",
-    "prepare": "husky"
+    "prepare": "node -e \"try { if (require('fs').existsSync('../.git') || require('fs').existsSync('.git')) { require('child_process').execSync('husky') } } catch (e) {}\""
   },
   "keywords": [],
   "author": "",

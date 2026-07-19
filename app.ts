@@ -2,8 +2,8 @@ import express, { Application } from "express";
 import cors from "cors";
 import cookieParser from "cookie-parser";
 
-import uploadRoutes from "./routes/upload.routes.js";
-import paymentRoutes from "./routes/payment.routes.js";
+import uploadRoutes from "./routes/upload.routes";
+import paymentRoutes from "./routes/payment.routes";
 
 const app: Application = express();
 

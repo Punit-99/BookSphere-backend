@@ -1,8 +1,8 @@
 import express, { Router, Request, Response } from "express";
-import { createCheckoutSession } from "../controllers/payment/createCheckoutSession.controller.js";
-import { requireAuthMiddleware } from "../utils/requireAuth.js";
-import { confirmBookingAfterPayment } from "../controllers/booking/bookingAfterPayment.js";
-import redisClient from "../config/redis.js";
+import { createCheckoutSession } from "../controllers/payment/createCheckoutSession.controller";
+import { requireAuthMiddleware } from "../utils/requireAuth";
+import { confirmBookingAfterPayment } from "../controllers/booking/bookingAfterPayment";
+import redisClient from "../config/redis";
 
 const router: Router = express.Router();
 

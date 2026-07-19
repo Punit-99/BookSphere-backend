@@ -1,7 +1,7 @@
 import express, { Router } from "express";
-import { uploadImagesController } from "../controllers/upload/upload.controller.js";
-import { upload } from "../middlewares/multer.middleware.js";
-import { deleteImageController } from "../controllers/upload/delete.controller.js";
+import { uploadImagesController } from "../controllers/upload/upload.controller";
+import { upload } from "../middlewares/multer.middleware";
+import { deleteImageController } from "../controllers/upload/delete.controller";
 
 const router: Router = express.Router();
 
