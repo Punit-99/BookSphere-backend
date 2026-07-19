@@ -79,6 +79,49 @@ type RefreshResponse {
   success: Boolean!
 }
 
+type LogoutResponse {
+  success: Boolean!
+}
+
+type Movie {
+  id: ID!
+  title: String!
+  description: String
+  duration: Int!
+  language: [String!]!
+  genre: [String!]!
+  releaseDate: String
+  poster: [String!]!
+  organizer: User
+  venue: Venue
+}
+
+type Theatre {
+  id: ID!
+  name: String!
+  state: String!
+  city: String!
+  address: String
+  screens: Int!
+  owner: User!
+}
+
+type TheatreWithShows {
+  theatre: Theatre!
+  shows: [Show!]!
+}
+
+type BookingPageResponse {
+  movie: Movie!
+  theatres: [TheatreWithShows!]!
+}
+
+type Constants {
+  genres: [String!]!
+  languages: [String!]!
+  locations: JSON!
+}
+
 type Query {
   me: User
   events(category: String, city: String): [Event!]!
@@ -88,12 +131,19 @@ type Query {
   myBookings: [Booking!]!
   booking(id: ID!): Booking
   venues: [Venue!]!
+  
+  # Frontend backwards-compatible queries
+  movie(id: ID!): Movie
+  bookingPage(movieId: ID!): BookingPageResponse!
+  constants: Constants!
+  homeMovies: [Movie!]!
+  latestMovies: [Movie!]!
 }
 
 type Mutation {
-  signup(name: String!, email: String!, password: String!, role: String): AuthPayload!
+  register(name: String!, email: String!, password: String!, role: String): AuthPayload!
   login(email: String!, password: String!): AuthPayload!
-  logout: Boolean!
+  logout: LogoutResponse!
   refreshToken: RefreshResponse!
   
   createVenue(name: String!, address: String!, city: String!, state: String!, capacity: Int!, rows: Int, cols: Int): Venue!

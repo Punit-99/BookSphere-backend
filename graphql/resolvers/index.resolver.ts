@@ -6,6 +6,24 @@ import Booking from "../../models/booking.model";
 import jwt from "jsonwebtoken";
 import bcrypt from "bcryptjs";
 import { GraphQLContext } from "../index.graphql";
+import { generateTokens } from "../../utils/generateTokens";
+import { MOVIE_GENRES, LANGUAGES, LOCATION_DATA } from "../../utils/constant";
+
+const mapEventToMovie = (event: any) => {
+  if (!event) return null;
+  return {
+    id: event._id,
+    title: event.title,
+    description: event.description,
+    duration: event.duration || 120,
+    language: ["Hindi", "English"],
+    genre: [event.category || "Movie"],
+    releaseDate: event.createdAt ? new Date(event.createdAt).toISOString() : new Date().toISOString(),
+    poster: event.poster || [],
+    organizer: event.organizer,
+    venue: event.venue,
+  };
+};
 
 const resolvers = {
   Query: {
@@ -58,10 +76,77 @@ const resolvers = {
     venues: async () => {
       return await Venue.find();
     },
+
+    // Backwards compatibility resolvers for existing frontend
+    movie: async (_: any, { id }: { id: string }) => {
+      const event = await Event.findById(id).populate("organizer").populate("venue");
+      return mapEventToMovie(event);
+    },
+
+    bookingPage: async (_: any, { movieId }: { movieId: string }) => {
+      const event = await Event.findById(movieId).populate("organizer").populate("venue");
+      if (!event) throw new Error("Event not found");
+
+      const movie = mapEventToMovie(event);
+
+      // Find all shows for this event
+      const shows = await Show.find({ event: event._id }).populate("venue");
+
+      // Group shows by venue (theatre)
+      const venueMap = new Map<string, any>();
+      for (const show of shows) {
+        const venue = show.venue as any;
+        if (!venue) continue;
+        const venueId = venue._id.toString();
+
+        if (!venueMap.has(venueId)) {
+          venueMap.set(venueId, {
+            theatre: {
+              id: venue._id,
+              name: venue.name,
+              city: venue.city,
+              state: venue.state,
+              address: venue.address,
+              screens: venue.screens || 1,
+              owner: event.organizer,
+            },
+            shows: [],
+          });
+        }
+
+        venueMap.get(venueId).shows.push({
+          id: show._id,
+          showTime: show.showTime,
+          price: show.price,
+          availableSeats: show.availableSeats,
+        });
+      }
+
+      return {
+        movie,
+        theatres: Array.from(venueMap.values()),
+      };
+    },
+
+    constants: () => ({
+      genres: MOVIE_GENRES,
+      languages: LANGUAGES,
+      locations: LOCATION_DATA,
+    }),
+
+    homeMovies: async () => {
+      const events = await Event.find().populate("organizer").populate("venue");
+      return events.map(mapEventToMovie);
+    },
+
+    latestMovies: async () => {
+      const events = await Event.find().sort({ createdAt: -1 }).limit(5).populate("organizer").populate("venue");
+      return events.map(mapEventToMovie);
+    },
   },
 
   Mutation: {
-    signup: async (_: any, { name, email, password, role }: any, { res }: GraphQLContext) => {
+    register: async (_: any, { name, email, password, role }: any, { res }: GraphQLContext) => {
       const existing = await User.findOne({ email });
       if (existing) throw new Error("Email already registered");
 
@@ -73,13 +158,15 @@ const resolvers = {
         role: role || "USER",
       });
 
-      const accessToken = jwt.sign(
-        { id: user._id, role: user.role, email: user.email },
-        process.env.JWT_ACCESS_SECRET as string,
-        { expiresIn: Math.floor(Number(process.env.ACCESS_TOKEN_EXPIRE || 900000) / 1000) }
-      );
+      const { accessToken, refreshToken } = generateTokens(user);
 
       res.cookie("accessToken", accessToken, {
+        httpOnly: true,
+        secure: process.env.COOKIE_SECURE === "true",
+        sameSite: "none",
+      });
+
+      res.cookie("refreshToken", refreshToken, {
         httpOnly: true,
         secure: process.env.COOKIE_SECURE === "true",
         sameSite: "none",
@@ -95,13 +182,15 @@ const resolvers = {
       const isMatch = await bcrypt.compare(password, user.password || "");
       if (!isMatch) throw new Error("Invalid credentials");
 
-      const accessToken = jwt.sign(
-        { id: user._id, role: user.role, email: user.email },
-        process.env.JWT_ACCESS_SECRET as string,
-        { expiresIn: Math.floor(Number(process.env.ACCESS_TOKEN_EXPIRE || 900000) / 1000) }
-      );
+      const { accessToken, refreshToken } = generateTokens(user);
 
       res.cookie("accessToken", accessToken, {
+        httpOnly: true,
+        secure: process.env.COOKIE_SECURE === "true",
+        sameSite: "none",
+      });
+
+      res.cookie("refreshToken", refreshToken, {
         httpOnly: true,
         secure: process.env.COOKIE_SECURE === "true",
         sameSite: "none",
@@ -112,7 +201,37 @@ const resolvers = {
 
     logout: (_: any, __: any, { res }: GraphQLContext) => {
       res.clearCookie("accessToken");
-      return true;
+      res.clearCookie("refreshToken");
+      return { success: true };
+    },
+
+    refreshToken: async (_: any, __: any, { req, res }: GraphQLContext) => {
+      const token = req.cookies?.refreshToken;
+      if (!token) throw new Error("No refresh token");
+
+      try {
+        const decoded = jwt.verify(token, process.env.JWT_REFRESH_SECRET as string) as any;
+        const user = await User.findById(decoded.id);
+        if (!user) throw new Error("User not found");
+
+        const { accessToken, refreshToken: newRefreshToken } = generateTokens(user);
+
+        res.cookie("accessToken", accessToken, {
+          httpOnly: true,
+          secure: process.env.COOKIE_SECURE === "true",
+          sameSite: "none",
+        });
+
+        res.cookie("refreshToken", newRefreshToken, {
+          httpOnly: true,
+          secure: process.env.COOKIE_SECURE === "true",
+          sameSite: "none",
+        });
+
+        return { success: true };
+      } catch (err) {
+        throw new Error("Invalid or expired refresh token");
+      }
     },
 
     createVenue: async (_: any, args: any, { user }: GraphQLContext) => {
