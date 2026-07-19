@@ -1,7 +1,7 @@
 export const ROLES = {
-  ADMIN: "ADMIN",
-  USER: "USER",
-  ORGANIZER: "ORGANIZER",
+  ADMIN: "admin",
+  USER: "user",
+  ORGANIZER: "organizer",
 };
 
 export const MOVIE_GENRES = [

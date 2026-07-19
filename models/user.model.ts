@@ -5,7 +5,7 @@ export interface IUser extends Document {
   email: string;
   password?: string;
   googleId?: string;
-  role: "USER" | "ORGANIZER" | "ADMIN";
+  role: "user" | "organizer" | "admin";
   isApproved: boolean;
   createdAt: Date;
   updatedAt: Date;
@@ -38,8 +38,8 @@ const userSchema = new Schema<IUser>(
     },
     role: {
       type: String,
-      enum: ["USER", "ORGANIZER", "ADMIN"],
-      default: "USER",
+      enum: ["user", "organizer", "admin"],
+      default: "user",
     },
     isApproved: {
       type: Boolean,

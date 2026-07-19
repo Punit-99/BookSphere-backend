@@ -29,7 +29,7 @@ const seed = async () => {
       name: "Admin User",
       email: "admin@booksphere.com",
       password: hashedPassword,
-      role: "ADMIN",
+      role: "admin",
       isApproved: true,
     });
 
@@ -38,7 +38,7 @@ const seed = async () => {
       name: "Regular User",
       email: "user@booksphere.com",
       password: userPassword,
-      role: "USER",
+      role: "user",
       isApproved: true,
     });
     console.log("Users created successfully.");

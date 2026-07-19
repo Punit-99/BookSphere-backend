@@ -155,7 +155,7 @@ const resolvers = {
         name,
         email,
         password: hashedPassword,
-        role: role || "USER",
+        role: role || "user",
       });
 
       const { accessToken, refreshToken } = generateTokens(user);
@@ -235,12 +235,12 @@ const resolvers = {
     },
 
     createVenue: async (_: any, args: any, { user }: GraphQLContext) => {
-      if (!user || user.role !== "ADMIN") throw new Error("Unauthorized");
+      if (!user || user.role !== "admin") throw new Error("Unauthorized");
       return await Venue.create(args);
     },
 
     createEvent: async (_: any, args: any, { user }: GraphQLContext) => {
-      if (!user || user.role !== "ADMIN") throw new Error("Unauthorized");
+      if (!user || user.role !== "admin") throw new Error("Unauthorized");
       return await Event.create({
         ...args,
         organizer: user.id,
@@ -249,7 +249,7 @@ const resolvers = {
     },
 
     createShow: async (_: any, args: any, { user }: GraphQLContext) => {
-      if (!user || user.role !== "ADMIN") throw new Error("Unauthorized");
+      if (!user || user.role !== "admin") throw new Error("Unauthorized");
       
       const venue = await Venue.findById(args.venueId);
       if (!venue) throw new Error("Venue not found");
